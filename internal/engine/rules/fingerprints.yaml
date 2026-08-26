@@ -1,0 +1,67 @@
+version: 1
+rules:
+  - name: ssh
+    protocol: SSH
+    ports: [22]
+    match: '^SSH-\d+\.\d+-'
+    product:
+      regex: '^SSH-[\d.]+-([A-Za-z][A-Za-z0-9]*)'
+      group: 1
+    version:
+      regex: '^SSH-[\d.]+-[A-Za-z][A-Za-z0-9]*_([^\s]+)'
+      group: 1
+    os:
+      regex: '\s(Ubuntu|Debian|CentOS|RedHat|Fedora|FreeBSD|OpenBSD|Alpine)\s*[-0-9]?'
+      group: 1
+    confidence: 0.95
+
+  - name: http
+    protocol: HTTP
+    ports: [80, 443, 8080, 8443, 8888]
+    match: '^HTTP/'
+    product:
+      regex: 'Server:\s*([^/\s]+)'
+      group: 1
+    version:
+      regex: 'Server:\s*[^/\s]+/([^\s(]+)'
+      group: 1
+    os:
+      regex: '\(([^)]+)\)'
+      group: 1
+    confidence: 0.9
+
+  - name: mysql
+    protocol: MySQL
+    ports: [3306]
+    match: '(?s)\x00.+\d+\.\d+\.\d+'
+    product:
+      literal: MySQL
+    version:
+      regex: '(\d+\.\d+\.\d+[a-z0-9_]*)'
+      group: 1
+    confidence: 0.9
+
+  - name: redis
+    protocol: Redis
+    ports: [6379]
+    match: '^[-+*$]\w|PONG|NOAUTH|wrong number of arguments'
+    product:
+      literal: Redis
+    confidence: 0.7
+
+  - name: ftp
+    protocol: FTP
+    ports: [21]
+    match: '^220 '
+    product:
+      regex: '(ProFTPD|vsFTPd|Pure-FTPd|vsftpd|FileZilla|Serv-U)'
+      group: 1
+    version:
+      regex: '(?:ProFTPD|vsFTPd|Pure-FTPd|vsftpd|FileZilla)\s+([\d.]+)'
+      group: 1
+    confidence: 0.9
+
+  - name: tls
+    protocol: TLS
+    match: '^\x16\x03'
+    confidence: 0.8
